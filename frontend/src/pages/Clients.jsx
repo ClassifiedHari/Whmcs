@@ -202,7 +202,7 @@ const Clients = () => {
               <Input
                 placeholder="Search clients by name, email, or company..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => handleSearch(e.target.value)}
                 className="pl-10"
               />
             </div>
