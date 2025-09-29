@@ -113,7 +113,7 @@ const Dashboard = () => {
     }
   ] : [];
 
-  const alerts = [
+  const alerts = dashboardStats ? [
     {
       id: 1,
       type: 'warning',
@@ -135,7 +135,7 @@ const Dashboard = () => {
       message: `${dashboardStats.pendingOrders} orders awaiting processing`,
       action: 'Process Orders'
     }
-  ];
+  ] : [];
 
   const getAlertIcon = (type) => {
     switch (type) {
