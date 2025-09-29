@@ -40,9 +40,13 @@ import {
   Phone,
   MapPin,
   Calendar,
-  DollarSign
+  DollarSign,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
-import { mockClients } from '../data/mockData';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('');
