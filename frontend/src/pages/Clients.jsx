@@ -52,13 +52,63 @@ const Clients = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedClient, setSelectedClient] = useState(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [clients, setClients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0
+  });
 
-  const filteredClients = mockClients.filter(client =>
-    client.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.company.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const fetchClients = async (page = 1, search = '') => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/clients`, {
+        params: {
+          page,
+          limit: pagination.limit,
+          search: search || undefined
+        }
+      });
+      
+      setClients(response.data.clients);
+      setPagination({
+        page: response.data.page,
+        limit: response.data.limit,
+        total: response.data.total,
+        totalPages: response.data.totalPages
+      });
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching clients:', err);
+      setError('Failed to load clients');
+      setClients([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    fetchClients(1, value);
+  };
+
+  const createClient = async (clientData) => {
+    try {
+      await axios.post(`${API}/clients`, clientData);
+      fetchClients(pagination.page, searchTerm);
+      setIsAddDialogOpen(false);
+    } catch (err) {
+      console.error('Error creating client:', err);
+      // Handle error (show toast, etc.)
+    }
+  };
 
   const getStatusBadge = (status) => {
     switch (status) {
