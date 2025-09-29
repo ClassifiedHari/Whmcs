@@ -21,7 +21,64 @@ const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
 const Dashboard = () => {
-  const stats = [
+  const [dashboardStats, setDashboardStats] = useState(null);
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [adminTasks, setAdminTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const [statsResponse, activitiesResponse, tasksResponse] = await Promise.all([
+        axios.get(`${API}/dashboard/stats`),
+        axios.get(`${API}/dashboard/activities`),
+        axios.get(`${API}/dashboard/tasks`)
+      ]);
+
+      setDashboardStats(statsResponse.data);
+      setRecentActivities(activitiesResponse.data);
+      setAdminTasks(tasksResponse.data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError('Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex items-center space-x-2">
+          <RefreshCw className="w-6 h-6 animate-spin" />
+          <span>Loading dashboard...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <p className="text-red-600 mb-4">{error}</p>
+          <Button onClick={fetchDashboardData}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const stats = dashboardStats ? [
     {
       title: 'Total Clients',
       value: dashboardStats.totalClients,
@@ -54,7 +111,7 @@ const Dashboard = () => {
       change: '-5%',
       changeType: 'negative'
     }
-  ];
+  ] : [];
 
   const alerts = [
     {
