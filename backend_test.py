@@ -12,7 +12,7 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = "https://client-manager-81.preview.emergentagent.com"
+BACKEND_URL = "https://ticket-manager-20.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
 class WHMCSBackendTester:
