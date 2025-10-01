@@ -70,9 +70,9 @@ class ServiceController extends Controller
 
         $validated = $request->validate([
             'domain' => 'sometimes|string',
-            'domainstatus' => 'sometimes|string',
-            'billingcycle' => 'sometimes|string',
-            'amount' => 'sometimes|numeric',
+            'status' => 'sometimes|string',
+            'billing_cycle' => 'sometimes|string',
+            'recurring_amount' => 'sometimes|numeric',
         ]);
 
         $service->update($validated);
