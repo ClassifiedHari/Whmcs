@@ -46,46 +46,38 @@ class LaravelBackendTester:
         if response_data and not success:
             print(f"   Response: {json.dumps(response_data, indent=2)}")
     
-    def test_health_check(self):
-        """Test health check endpoint"""
+    def test_dashboard_endpoint(self):
+        """Test dashboard endpoint"""
         try:
-            response = self.session.get(f"{API_BASE}/health", timeout=10)
+            response = self.session.get(f"{API_BASE}/dashboard", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
-                if data.get('status') == 'healthy' and data.get('database') == 'connected':
-                    self.log_result("Health Check", True, "API is healthy and database connected", data)
-                    return True
+                expected_keys = ['stats', 'recent_clients', 'recent_invoices', 'recent_tickets']
+                if all(key in data for key in expected_keys):
+                    stats = data['stats']
+                    stats_keys = ['total_clients', 'total_services', 'total_domains', 'total_invoices']
+                    if any(key in stats for key in stats_keys):
+                        self.log_result("Dashboard API", True, f"Dashboard data retrieved successfully", {
+                            'total_clients': stats.get('total_clients'),
+                            'total_services': stats.get('total_services'),
+                            'total_invoices': stats.get('total_invoices'),
+                            'recent_clients_count': len(data['recent_clients']),
+                            'recent_invoices_count': len(data['recent_invoices'])
+                        })
+                        return True
+                    else:
+                        self.log_result("Dashboard API", False, f"Missing expected stats keys", data)
+                        return False
                 else:
-                    self.log_result("Health Check", False, f"Unhealthy response: {data}", data)
+                    self.log_result("Dashboard API", False, f"Missing expected response keys", data)
                     return False
             else:
-                self.log_result("Health Check", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_result("Dashboard API", False, f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except requests.exceptions.RequestException as e:
-            self.log_result("Health Check", False, f"Connection error: {str(e)}")
-            return False
-    
-    def test_root_endpoint(self):
-        """Test root API endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/", timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if "WHMCS Admin API" in data.get('message', ''):
-                    self.log_result("Root Endpoint", True, "Root endpoint working correctly", data)
-                    return True
-                else:
-                    self.log_result("Root Endpoint", False, f"Unexpected response: {data}", data)
-                    return False
-            else:
-                self.log_result("Root Endpoint", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-                
-        except requests.exceptions.RequestException as e:
-            self.log_result("Root Endpoint", False, f"Connection error: {str(e)}")
+            self.log_result("Dashboard API", False, f"Connection error: {str(e)}")
             return False
     
     def test_dashboard_stats(self):
