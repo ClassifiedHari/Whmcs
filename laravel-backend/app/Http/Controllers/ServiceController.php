@@ -17,12 +17,12 @@ class ServiceController extends Controller
 
         // Status filter
         if ($request->has('status')) {
-            $query->where('domainstatus', $request->get('status'));
+            $query->where('status', $request->get('status'));
         }
 
         // Client filter
-        if ($request->has('userid')) {
-            $query->where('userid', $request->get('userid'));
+        if ($request->has('client_id')) {
+            $query->where('client_id', $request->get('client_id'));
         }
 
         $services = $query->orderBy('id', 'desc')->paginate(50);
