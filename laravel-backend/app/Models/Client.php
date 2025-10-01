@@ -13,47 +13,44 @@ class Client extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'firstname',
-        'lastname',
-        'companyname',
+        'first_name',
+        'last_name',
         'email',
-        'address1',
-        'address2',
-        'city',
-        'state',
-        'postcode',
-        'country',
-        'phonenumber',
+        'company',
+        'phone',
+        'address',
         'status',
-        'datecreated',
-        'currency',
-        'credit',
-        'language',
+        'registration_date',
+        'last_login',
+        'total_spent',
+        'active_services',
     ];
 
     protected $casts = [
-        'datecreated' => 'datetime',
-        'credit' => 'decimal:2',
+        'registration_date' => 'date',
+        'last_login' => 'datetime',
+        'total_spent' => 'decimal:2',
+        'active_services' => 'integer',
     ];
 
     // Relationships
     public function services()
     {
-        return $this->hasMany(Service::class, 'userid');
+        return $this->hasMany(Service::class, 'client_id');
     }
 
     public function domains()
     {
-        return $this->hasMany(Domain::class, 'userid');
+        return $this->hasMany(Domain::class, 'client_id');
     }
 
     public function invoices()
     {
-        return $this->hasMany(Invoice::class, 'userid');
+        return $this->hasMany(Invoice::class, 'client_id');
     }
 
     public function tickets()
     {
-        return $this->hasMany(Ticket::class, 'userid');
+        return $this->hasMany(Ticket::class, 'client_id');
     }
 }
