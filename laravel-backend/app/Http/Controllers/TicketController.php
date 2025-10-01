@@ -66,7 +66,7 @@ class TicketController extends Controller
 
         $validated = $request->validate([
             'status' => 'sometimes|string',
-            'urgency' => 'sometimes|string',
+            'priority' => 'sometimes|string',
         ]);
 
         $ticket->update($validated);
