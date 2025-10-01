@@ -46,14 +46,11 @@ class TicketController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'userid' => 'required|exists:clients,id',
+            'client_id' => 'required|exists:clients,id',
             'subject' => 'required|string',
-            'message' => 'required|string',
             'status' => 'required|string',
-            'urgency' => 'nullable|string',
+            'priority' => 'nullable|string',
         ]);
-
-        $validated['date'] = now();
 
         $ticket = Ticket::create($validated);
 
