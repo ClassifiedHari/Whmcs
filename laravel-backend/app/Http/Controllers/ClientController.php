@@ -53,20 +53,16 @@ class ClientController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'firstname' => 'required|string|max:255',
-            'lastname' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:clients',
-            'companyname' => 'nullable|string|max:255',
-            'address1' => 'nullable|string',
-            'city' => 'nullable|string',
-            'state' => 'nullable|string',
-            'postcode' => 'nullable|string',
-            'country' => 'nullable|string',
-            'phonenumber' => 'nullable|string',
+            'company' => 'nullable|string|max:255',
+            'phone' => 'nullable|string',
+            'address' => 'nullable|string',
             'status' => 'required|in:Active,Inactive,Closed',
         ]);
 
-        $validated['datecreated'] = now();
+        $validated['registration_date'] = now();
 
         $client = Client::create($validated);
 
