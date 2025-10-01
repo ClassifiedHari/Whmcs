@@ -70,7 +70,7 @@ class DomainController extends Controller
             'domain' => 'sometimes|string',
             'registrar' => 'sometimes|string',
             'status' => 'sometimes|string',
-            'expirydate' => 'sometimes|date',
+            'expiry_date' => 'sometimes|date',
         ]);
 
         $domain->update($validated);
