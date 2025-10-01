@@ -21,8 +21,8 @@ class TicketController extends Controller
         }
 
         // Client filter
-        if ($request->has('userid')) {
-            $query->where('userid', $request->get('userid'));
+        if ($request->has('client_id')) {
+            $query->where('client_id', $request->get('client_id'));
         }
 
         $tickets = $query->orderBy('id', 'desc')->paginate(50);
