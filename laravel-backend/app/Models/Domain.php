@@ -13,26 +13,25 @@ class Domain extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'userid',
+        'client_id',
         'domain',
         'registrar',
-        'registrationdate',
-        'expirydate',
         'status',
-        'subscriptionid',
-        'promoid',
-        'recurringamount',
+        'registration_date',
+        'expiry_date',
+        'auto_renew',
+        'nameservers',
     ];
 
     protected $casts = [
-        'registrationdate' => 'date',
-        'expirydate' => 'date',
-        'recurringamount' => 'decimal:2',
+        'registration_date' => 'date',
+        'expiry_date' => 'date',
+        'auto_renew' => 'boolean',
     ];
 
     // Relationships
     public function client()
     {
-        return $this->belongsTo(Client::class, 'userid');
+        return $this->belongsTo(Client::class, 'client_id');
     }
 }
