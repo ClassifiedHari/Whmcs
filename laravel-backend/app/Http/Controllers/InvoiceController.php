@@ -46,14 +46,12 @@ class InvoiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'userid' => 'required|exists:clients,id',
-            'date' => 'required|date',
-            'duedate' => 'required|date',
-            'subtotal' => 'required|numeric',
-            'tax' => 'nullable|numeric',
-            'total' => 'required|numeric',
+            'client_id' => 'required|exists:clients,id',
+            'due_date' => 'required|date',
+            'issue_date' => 'required|date',
+            'amount' => 'required|numeric',
             'status' => 'required|string',
-            'paymentmethod' => 'nullable|string',
+            'payment_method' => 'nullable|string',
         ]);
 
         $invoice = Invoice::create($validated);
