@@ -15,7 +15,7 @@ import os
 BACKEND_URL = "https://ticket-manager-20.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
-class WHMCSBackendTester:
+class LaravelBackendTester:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({
@@ -24,7 +24,10 @@ class WHMCSBackendTester:
         })
         self.test_results = []
         self.created_client_id = None
+        self.created_service_id = None
+        self.created_domain_id = None
         self.created_invoice_id = None
+        self.created_ticket_id = None
         
     def log_result(self, test_name, success, details, response_data=None):
         """Log test result"""
