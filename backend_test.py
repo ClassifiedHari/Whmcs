@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-WHMCS Admin Backend API Test Suite
-Tests all backend endpoints with realistic data
+Laravel WHMCS Backend API Test Suite
+Tests all Laravel backend endpoints with realistic data
 """
 
 import requests
