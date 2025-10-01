@@ -68,8 +68,7 @@ class InvoiceController extends Controller
 
         $validated = $request->validate([
             'status' => 'sometimes|string',
-            'datepaid' => 'sometimes|date',
-            'paymentmethod' => 'sometimes|string',
+            'payment_method' => 'sometimes|string',
         ]);
 
         $invoice->update($validated);
