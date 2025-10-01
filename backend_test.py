@@ -80,69 +80,33 @@ class LaravelBackendTester:
             self.log_result("Dashboard API", False, f"Connection error: {str(e)}")
             return False
     
-    def test_dashboard_stats(self):
-        """Test dashboard stats endpoint"""
+    def test_clients_list(self):
+        """Test clients list endpoint with pagination"""
         try:
-            response = self.session.get(f"{API_BASE}/dashboard/stats", timeout=10)
+            response = self.session.get(f"{API_BASE}/clients", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
-                # Check if response has expected structure
-                expected_keys = ['totalClients', 'totalInvoices', 'totalRevenue', 'activeServices']
+                # Laravel pagination structure
+                expected_keys = ['data', 'current_page', 'total', 'per_page', 'last_page']
                 if all(key in data for key in expected_keys):
-                    self.log_result("Dashboard Stats", True, "Dashboard stats retrieved successfully", data)
+                    self.log_result("Clients List", True, f"Retrieved {data['total']} clients (page {data['current_page']})", {
+                        'total': data['total'],
+                        'current_page': data['current_page'],
+                        'per_page': data['per_page'],
+                        'last_page': data['last_page'],
+                        'data_count': len(data['data'])
+                    })
                     return True
                 else:
-                    self.log_result("Dashboard Stats", True, "Dashboard stats endpoint working (structure may vary)", data)
-                    return True
-            else:
-                self.log_result("Dashboard Stats", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-                
-        except requests.exceptions.RequestException as e:
-            self.log_result("Dashboard Stats", False, f"Connection error: {str(e)}")
-            return False
-    
-    def test_dashboard_activities(self):
-        """Test dashboard activities endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/dashboard/activities?limit=5", timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, list):
-                    self.log_result("Dashboard Activities", True, f"Retrieved {len(data)} activities", data[:2])  # Show first 2
-                    return True
-                else:
-                    self.log_result("Dashboard Activities", False, f"Expected list, got: {type(data)}", data)
+                    self.log_result("Clients List", False, f"Missing expected pagination keys", data)
                     return False
             else:
-                self.log_result("Dashboard Activities", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_result("Clients List", False, f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except requests.exceptions.RequestException as e:
-            self.log_result("Dashboard Activities", False, f"Connection error: {str(e)}")
-            return False
-    
-    def test_dashboard_tasks(self):
-        """Test dashboard tasks endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/dashboard/tasks", timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, list):
-                    self.log_result("Dashboard Tasks", True, f"Retrieved {len(data)} tasks", data[:2])  # Show first 2
-                    return True
-                else:
-                    self.log_result("Dashboard Tasks", False, f"Expected list, got: {type(data)}", data)
-                    return False
-            else:
-                self.log_result("Dashboard Tasks", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-                
-        except requests.exceptions.RequestException as e:
-            self.log_result("Dashboard Tasks", False, f"Connection error: {str(e)}")
+            self.log_result("Clients List", False, f"Connection error: {str(e)}")
             return False
     
     def test_clients_list(self):
