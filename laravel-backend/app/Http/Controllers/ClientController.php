@@ -19,10 +19,10 @@ class ClientController extends Controller
         if ($request->has('search')) {
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
-                $q->where('firstname', 'LIKE', "%{$search}%")
-                  ->orWhere('lastname', 'LIKE', "%{$search}%")
+                $q->where('first_name', 'LIKE', "%{$search}%")
+                  ->orWhere('last_name', 'LIKE', "%{$search}%")
                   ->orWhere('email', 'LIKE', "%{$search}%")
-                  ->orWhere('companyname', 'LIKE', "%{$search}%");
+                  ->orWhere('company', 'LIKE', "%{$search}%");
             });
         }
 
