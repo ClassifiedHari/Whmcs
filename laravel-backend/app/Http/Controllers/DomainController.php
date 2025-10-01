@@ -46,12 +46,12 @@ class DomainController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'userid' => 'required|exists:clients,id',
+            'client_id' => 'required|exists:clients,id',
             'domain' => 'required|string',
             'registrar' => 'required|string',
             'status' => 'required|string',
-            'registrationdate' => 'required|date',
-            'expirydate' => 'required|date',
+            'registration_date' => 'required|date',
+            'expiry_date' => 'required|date',
         ]);
 
         $domain = Domain::create($validated);
