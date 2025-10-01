@@ -16,20 +16,20 @@
 
 // WHMCS Database (Source)
 $whmcs_config = [
-    'host' => '127.0.0.1',
+    'host' => 'sql285.your-server.de',
     'port' => 3306,
-    'database' => 'your_whmcs_database',
-    'username' => 'your_whmcs_username', 
-    'password' => 'your_whmcs_password'
+    'database' => 'classigm_db1',
+    'username' => 'classigm_1', 
+    'password' => 'ebLbHd3t4XfDDNGM'
 ];
 
 // New Admin System Database (Destination)
 $laravel_config = [
-    'host' => '127.0.0.1',
+    'host' => 'jgcb.your-database.de',
     'port' => 3306,
-    'database' => 'whmcs_admin',
-    'username' => 'your_mysql_username',
-    'password' => 'your_mysql_password'
+    'database' => 'claredigm_db1',
+    'username' => 'classigm_1',
+    'password' => 'e1§Ky§MuhxoV'
 ];
 
 // Migration Settings
