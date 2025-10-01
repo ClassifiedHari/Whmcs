@@ -13,29 +13,25 @@ class Ticket extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'tid',
-        'userid',
-        'name',
-        'email',
+        'ticket_id',
+        'client_id',
         'subject',
-        'message',
         'status',
-        'urgency',
-        'date',
-        'lastreply',
-        'admin',
-        'attachment',
+        'priority',
+        'department',
+        'category',
+        'assigned_to',
     ];
 
     protected $casts = [
-        'date' => 'datetime',
-        'lastreply' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Relationships
     public function client()
     {
-        return $this->belongsTo(Client::class, 'userid');
+        return $this->belongsTo(Client::class, 'client_id');
     }
 
     public function replies()
