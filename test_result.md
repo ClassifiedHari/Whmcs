@@ -314,10 +314,9 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Backend API testing - all CRUD endpoints"
     - "Frontend integration with Laravel backend"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
