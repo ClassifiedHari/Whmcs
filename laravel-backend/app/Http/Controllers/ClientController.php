@@ -77,16 +77,12 @@ class ClientController extends Controller
         $client = Client::findOrFail($id);
 
         $validated = $request->validate([
-            'firstname' => 'sometimes|string|max:255',
-            'lastname' => 'sometimes|string|max:255',
+            'first_name' => 'sometimes|string|max:255',
+            'last_name' => 'sometimes|string|max:255',
             'email' => 'sometimes|email|unique:clients,email,' . $id,
-            'companyname' => 'nullable|string|max:255',
-            'address1' => 'nullable|string',
-            'city' => 'nullable|string',
-            'state' => 'nullable|string',
-            'postcode' => 'nullable|string',
-            'country' => 'nullable|string',
-            'phonenumber' => 'nullable|string',
+            'company' => 'nullable|string|max:255',
+            'phone' => 'nullable|string',
+            'address' => 'nullable|string',
             'status' => 'sometimes|in:Active,Inactive,Closed',
         ]);
 
