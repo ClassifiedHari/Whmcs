@@ -13,39 +13,27 @@ class Invoice extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'userid',
-        'invoicenum',
-        'date',
-        'duedate',
-        'datepaid',
-        'subtotal',
-        'credit',
-        'tax',
-        'tax2',
-        'total',
-        'taxrate',
-        'taxrate2',
+        'invoice_id',
+        'client_id',
+        'amount',
         'status',
-        'paymentmethod',
-        'notes',
+        'due_date',
+        'issue_date',
+        'description',
+        'payment_method',
+        'items',
     ];
 
     protected $casts = [
-        'date' => 'date',
-        'duedate' => 'date',
-        'datepaid' => 'datetime',
-        'subtotal' => 'decimal:2',
-        'credit' => 'decimal:2',
-        'tax' => 'decimal:2',
-        'tax2' => 'decimal:2',
-        'total' => 'decimal:2',
-        'taxrate' => 'decimal:2',
-        'taxrate2' => 'decimal:2',
+        'due_date' => 'date',
+        'issue_date' => 'date',
+        'amount' => 'decimal:2',
+        'items' => 'array',
     ];
 
     // Relationships
     public function client()
     {
-        return $this->belongsTo(Client::class, 'userid');
+        return $this->belongsTo(Client::class, 'client_id');
     }
 }
