@@ -1,0 +1,92 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Invoice;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+class InvoiceController extends Controller
+{
+    /**
+     * Display a listing of invoices.
+     */
+    public function index(Request $request): JsonResponse
+    {
+        $query = Invoice::with('client');
+
+        // Status filter
+        if ($request->has('status')) {
+            $query->where('status', $request->get('status'));
+        }
+
+        // Client filter
+        if ($request->has('userid')) {
+            $query->where('userid', $request->get('userid'));
+        }
+
+        $invoices = $query->orderBy('id', 'desc')->paginate(50);
+
+        return response()->json($invoices);
+    }
+
+    /**
+     * Display the specified invoice.
+     */
+    public function show(int $id): JsonResponse
+    {
+        $invoice = Invoice::with('client')->findOrFail($id);
+
+        return response()->json($invoice);
+    }
+
+    /**
+     * Store a newly created invoice.
+     */
+    public function store(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'userid' => 'required|exists:clients,id',
+            'date' => 'required|date',
+            'duedate' => 'required|date',
+            'subtotal' => 'required|numeric',
+            'tax' => 'nullable|numeric',
+            'total' => 'required|numeric',
+            'status' => 'required|string',
+            'paymentmethod' => 'nullable|string',
+        ]);
+
+        $invoice = Invoice::create($validated);
+
+        return response()->json($invoice, 201);
+    }
+
+    /**
+     * Update the specified invoice.
+     */
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $invoice = Invoice::findOrFail($id);
+
+        $validated = $request->validate([
+            'status' => 'sometimes|string',
+            'datepaid' => 'sometimes|date',
+            'paymentmethod' => 'sometimes|string',
+        ]);
+
+        $invoice->update($validated);
+
+        return response()->json($invoice);
+    }
+
+    /**
+     * Remove the specified invoice.
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        $invoice = Invoice::findOrFail($id);
+        $invoice->delete();
+
+        return response()->json(['message' => 'Invoice deleted successfully'], 200);
+    }
+}
