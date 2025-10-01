@@ -46,15 +46,15 @@ class ServiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $validated = $request->validate([
-            'userid' => 'required|exists:clients,id',
+            'client_id' => 'required|exists:clients,id',
+            'product_name' => 'nullable|string',
             'domain' => 'required|string',
-            'producttype' => 'nullable|string',
-            'domainstatus' => 'required|string',
-            'billingcycle' => 'required|string',
-            'amount' => 'required|numeric',
+            'status' => 'required|string',
+            'billing_cycle' => 'required|string',
+            'recurring_amount' => 'required|numeric',
         ]);
 
-        $validated['regdate'] = now();
+        $validated['registration_date'] = now();
 
         $service = Service::create($validated);
 
