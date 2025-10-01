@@ -13,30 +13,25 @@ class Service extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'userid',
-        'packageid',
-        'producttype',
+        'client_id',
+        'product_name',
         'domain',
-        'dedicatedip',
-        'serverhostname',
-        'regdate',
-        'nextduedate',
-        'terminationdate',
-        'domainstatus',
-        'billingcycle',
-        'amount',
+        'status',
+        'next_due_date',
+        'recurring_amount',
+        'billing_cycle',
+        'registration_date',
     ];
 
     protected $casts = [
-        'regdate' => 'date',
-        'nextduedate' => 'date',
-        'terminationdate' => 'date',
-        'amount' => 'decimal:2',
+        'registration_date' => 'date',
+        'next_due_date' => 'date',
+        'recurring_amount' => 'decimal:2',
     ];
 
     // Relationships
     public function client()
     {
-        return $this->belongsTo(Client::class, 'userid');
+        return $this->belongsTo(Client::class, 'client_id');
     }
 }
