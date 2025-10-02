@@ -251,6 +251,95 @@ const Dashboard = () => {
         ))}
       </div>
 
+      {/* Sales Statistics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <DollarSign className="w-5 h-5 mr-2 text-green-600" />
+            Sales Statistics
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Today's Sales */}
+            <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-blue-500 rounded-lg">
+                  <DollarSign className="w-6 h-6 text-white" />
+                </div>
+                <Badge className="bg-blue-500 text-white">Today</Badge>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                ₹{dashboardStats.todaySales.toLocaleString('en-IN')}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {dashboardStats.todayInvoicesCount} invoice{dashboardStats.todayInvoicesCount !== 1 ? 's' : ''}
+              </p>
+              <div className="mt-3 pt-3 border-t border-blue-200">
+                <p className="text-xs text-gray-600">Sales made today</p>
+              </div>
+            </div>
+
+            {/* Monthly Sales */}
+            <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-green-500 rounded-lg">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <Badge className="bg-green-500 text-white">This Month</Badge>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                ₹{dashboardStats.monthlySales.toLocaleString('en-IN')}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {dashboardStats.monthlyInvoicesCount} invoice{dashboardStats.monthlyInvoicesCount !== 1 ? 's' : ''}
+              </p>
+              <div className="mt-3 pt-3 border-t border-green-200">
+                <p className="text-xs text-gray-600">Current month sales</p>
+              </div>
+            </div>
+
+            {/* Yearly Sales */}
+            <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-purple-500 rounded-lg">
+                  <BarChart3 className="w-6 h-6 text-white" />
+                </div>
+                <Badge className="bg-purple-500 text-white">This Year</Badge>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                ₹{dashboardStats.yearlySales.toLocaleString('en-IN')}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {dashboardStats.yearlyInvoicesCount} invoice{dashboardStats.yearlyInvoicesCount !== 1 ? 's' : ''}
+              </p>
+              <div className="mt-3 pt-3 border-t border-purple-200">
+                <p className="text-xs text-gray-600">Current year sales</p>
+              </div>
+            </div>
+
+            {/* Overall Sales */}
+            <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-orange-500 rounded-lg">
+                  <Award className="w-6 h-6 text-white" />
+                </div>
+                <Badge className="bg-orange-500 text-white">All Time</Badge>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                ₹{dashboardStats.overallSales.toLocaleString('en-IN')}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {dashboardStats.overallInvoicesCount} invoice{dashboardStats.overallInvoicesCount !== 1 ? 's' : ''}
+              </p>
+              <div className="mt-3 pt-3 border-t border-orange-200">
+                <p className="text-xs text-gray-600">Total lifetime sales</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Alerts & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
