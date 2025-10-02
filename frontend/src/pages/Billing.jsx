@@ -76,7 +76,7 @@ const Billing = () => {
   const billingStats = [
     {
       title: 'Monthly Revenue',
-      value: `$${dashboardStats.monthlyRevenue.toLocaleString()}`,
+      value: `₹${dashboardStats.monthlyRevenue.toLocaleString('en-IN')}`,
       icon: DollarSign,
       color: 'text-green-600',
       change: '+15%'
