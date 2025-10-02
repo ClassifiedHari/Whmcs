@@ -289,7 +289,7 @@ const Billing = () => {
                       <TableCell>{payment.invoiceId}</TableCell>
                       <TableCell>{payment.clientName}</TableCell>
                       <TableCell className="font-medium text-green-600">
-                        ${payment.amount}
+                        ₹{payment.amount.toLocaleString('en-IN')}
                       </TableCell>
                       <TableCell>{payment.method}</TableCell>
                       <TableCell>
