@@ -232,7 +232,7 @@ const Billing = () => {
                       <TableCell className="font-medium">{invoice.id}</TableCell>
                       <TableCell>{invoice.clientName}</TableCell>
                       <TableCell className="max-w-xs truncate">{invoice.description}</TableCell>
-                      <TableCell className="font-medium">${invoice.amount}</TableCell>
+                      <TableCell className="font-medium">₹{invoice.amount.toLocaleString('en-IN')}</TableCell>
                       <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                       <TableCell>{invoice.dueDate}</TableCell>
                       <TableCell className="text-right">
