@@ -411,7 +411,7 @@ const Clients = () => {
                     <div className="flex items-center justify-between">
                       <span>Total Spent:</span>
                       <span className="font-medium text-green-600">
-                        ${selectedClient.totalSpent.toLocaleString()}
+                        ₹{selectedClient.totalSpent.toLocaleString('en-IN')}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
