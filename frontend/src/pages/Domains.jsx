@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
+import axios from 'axios';
 import {
   Table,
   TableBody,
@@ -31,16 +32,99 @@ import {
   CheckCircle,
   Clock,
   ExternalLink,
-  Settings
+  Settings,
+  AlertCircle
 } from 'lucide-react';
-import { mockDomains } from '../data/mockData';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const Domains = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [domains, setDomains] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0
+  });
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    expiringSoon: 0,
+    autoRenew: 0
+  });
 
-  const filteredDomains = mockDomains.filter(domain =>
-    domain.domain.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    domain.registrar.toLowerCase().includes(searchTerm.toLowerCase())
+  const fetchDomains = async (page = 1) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/domains`, {
+        params: { page }
+      });
+      
+      // Laravel pagination format
+      const { data, current_page, total, per_page, last_page } = response.data;
+      
+      // Transform Laravel snake_case to camelCase
+      const transformedDomains = data.map(domain => ({
+        id: domain.id,
+        clientId: domain.client_id,
+        domain: domain.domain,
+        registrar: domain.registrar || 'N/A',
+        status: domain.status,
+        registrationDate: domain.registration_date,
+        expiryDate: domain.expiry_date,
+        autoRenew: domain.auto_renew || false,
+        nameservers: domain.nameservers,
+        client: domain.client ? {
+          firstName: domain.client.first_name,
+          lastName: domain.client.last_name,
+          email: domain.client.email
+        } : null
+      }));
+      
+      setDomains(transformedDomains);
+      setPagination({
+        page: current_page,
+        limit: per_page,
+        total: total,
+        totalPages: last_page
+      });
+      
+      // Calculate stats
+      const activeCount = transformedDomains.filter(d => d.status === 'Active').length;
+      const expiringSoonCount = transformedDomains.filter(d => {
+        const days = getDaysUntilExpiry(d.expiryDate);
+        return days <= 30 && days > 0;
+      }).length;
+      const autoRenewCount = transformedDomains.filter(d => d.autoRenew).length;
+      
+      setStats({
+        total: total,
+        active: activeCount,
+        expiringSoon: expiringSoonCount,
+        autoRenew: autoRenewCount
+      });
+      
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching domains:', err);
+      setError('Failed to load domains');
+      setDomains([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDomains();
+  }, []);
+
+  const filteredDomains = domains.filter(domain =>
+    domain.domain?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    domain.registrar?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getStatusBadge = (status, expiryDate) => {
