@@ -49,11 +49,11 @@ const Dashboard = () => {
         // Add sales statistics
         todaySales: parseFloat(sales_stats?.today_sales || 0),
         monthlySales: parseFloat(sales_stats?.monthly_sales || 0),
-        yearlySales: parseFloat(sales_stats?.yearly_sales || 0),
+        last12MonthsSales: parseFloat(sales_stats?.last_12_months_sales || 0),
         overallSales: parseFloat(sales_stats?.overall_sales || 0),
         todayInvoicesCount: sales_stats?.today_invoices_count || 0,
         monthlyInvoicesCount: sales_stats?.monthly_invoices_count || 0,
-        yearlyInvoicesCount: sales_stats?.yearly_invoices_count || 0,
+        last12MonthsInvoicesCount: sales_stats?.last_12_months_invoices_count || 0,
         overallInvoicesCount: sales_stats?.overall_invoices_count || 0,
       });
       
