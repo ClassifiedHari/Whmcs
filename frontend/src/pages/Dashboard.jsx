@@ -13,7 +13,9 @@ import {
   CheckCircle,
   Clock,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  BarChart3,
+  Award
 } from 'lucide-react';
 import axios from 'axios';
 
