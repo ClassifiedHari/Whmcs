@@ -385,9 +385,11 @@ const Domains = () => {
                     </TableCell>
                   </TableRow>
                 );
-              })}
+              })
+                )}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>
