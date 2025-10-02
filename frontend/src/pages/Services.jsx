@@ -322,7 +322,7 @@ const Services = () => {
                   </TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-medium">${service.recurringAmount}</div>
+                      <div className="font-medium">₹{service.recurringAmount.toLocaleString('en-IN')}</div>
                       <div className="text-sm text-gray-500">{service.billingCycle}</div>
                     </div>
                   </TableCell>
