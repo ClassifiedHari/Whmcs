@@ -30,15 +30,48 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsResponse, activitiesResponse, tasksResponse] = await Promise.all([
-        axios.get(`${API}/dashboard/stats`),
-        axios.get(`${API}/dashboard/activities`),
-        axios.get(`${API}/dashboard/tasks`)
+      const response = await axios.get(`${API}/dashboard`);
+      
+      // Laravel returns { stats, recent_clients, recent_invoices, recent_tickets }
+      const { stats, recent_clients, recent_invoices, recent_tickets } = response.data;
+      
+      // Transform Laravel response to match frontend expectations
+      setDashboardStats({
+        totalClients: stats.total_clients || 0,
+        activeServices: stats.active_services || 0,
+        monthlyRevenue: parseFloat(stats.total_revenue || 0),
+        openTickets: stats.pending_tickets || 0,
+        pendingInvoices: stats.unpaid_invoices || 0,
+        cancellationRequests: 0, // Not in current API
+        pendingOrders: 0 // Not in current API
+      });
+      
+      // Transform recent activities from recent_clients and recent_invoices
+      const activities = [
+        ...(recent_clients || []).slice(0, 3).map((client, idx) => ({
+          id: `client-${client.id}`,
+          type: 'client',
+          description: `New client registered: ${client.first_name} ${client.last_name}`,
+          timestamp: new Date(client.created_at).toLocaleString(),
+        })),
+        ...(recent_invoices || []).slice(0, 3).map((invoice, idx) => ({
+          id: `invoice-${invoice.id}`,
+          type: 'payment',
+          description: `Invoice #${invoice.invoice_id} - ${invoice.status}`,
+          timestamp: new Date(invoice.created_at).toLocaleString(),
+          amount: parseFloat(invoice.amount)
+        }))
+      ];
+      
+      setRecentActivities(activities);
+      
+      // Mock admin tasks for now
+      setAdminTasks([
+        { id: 1, task: 'Review pending invoices', dueDate: 'Today', priority: 'High', completed: false },
+        { id: 2, task: 'Update server maintenance', dueDate: 'Tomorrow', priority: 'Medium', completed: false },
+        { id: 3, task: 'Client support follow-up', dueDate: 'This week', priority: 'Low', completed: true }
       ]);
-
-      setDashboardStats(statsResponse.data);
-      setRecentActivities(activitiesResponse.data);
-      setAdminTasks(tasksResponse.data);
+      
       setError(null);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
