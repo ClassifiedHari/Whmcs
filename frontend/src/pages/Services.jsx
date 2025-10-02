@@ -275,7 +275,9 @@ const Services = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium text-gray-900">{service.clientName}</div>
+                    <div className="font-medium text-gray-900">
+                      {service.client ? `${service.client.firstName} ${service.client.lastName}` : 'N/A'}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
