@@ -159,25 +159,25 @@ const Services = () => {
   const serviceStats = [
     {
       title: 'Total Services',
-      value: mockServices.length,
+      value: stats.total,
       icon: Package,
       color: 'text-blue-600'
     },
     {
       title: 'Active Services',
-      value: mockServices.filter(s => s.status === 'Active').length,
+      value: stats.active,
       icon: Server,
       color: 'text-green-600'
     },
     {
       title: 'Suspended',
-      value: mockServices.filter(s => s.status === 'Suspended').length,
+      value: stats.suspended,
       icon: Power,
       color: 'text-red-600'
     },
     {
       title: 'Monthly Recurring',
-      value: `$${mockServices.reduce((sum, s) => s.billingCycle === 'Monthly' ? sum + s.recurringAmount : sum, 0).toLocaleString()}`,
+      value: `$${stats.monthlyRecurring.toLocaleString()}`,
       icon: DollarSign,
       color: 'text-purple-600'
     }
