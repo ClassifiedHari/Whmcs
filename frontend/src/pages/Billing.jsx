@@ -90,7 +90,7 @@ const Billing = () => {
     },
     {
       title: 'Overdue Amount',
-      value: '$3,247.50',
+      value: '₹3,247.50',
       icon: AlertCircle,
       color: 'text-red-600',
       change: '-12%'
