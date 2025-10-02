@@ -130,7 +130,7 @@ const Dashboard = () => {
     },
     {
       title: 'Monthly Revenue',
-      value: `$${dashboardStats.monthlyRevenue.toLocaleString()}`,
+      value: `₹${dashboardStats.monthlyRevenue.toLocaleString('en-IN')}`,
       icon: DollarSign,
       color: 'bg-purple-500',
       change: '+15%',
