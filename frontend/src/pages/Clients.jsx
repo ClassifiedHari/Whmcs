@@ -68,17 +68,19 @@ const Clients = () => {
       const response = await axios.get(`${API}/clients`, {
         params: {
           page,
-          limit: pagination.limit,
           search: search || undefined
         }
       });
       
-      setClients(response.data.clients);
+      // Laravel pagination format: { data, current_page, total, per_page, last_page }
+      const { data, current_page, total, per_page, last_page } = response.data;
+      
+      setClients(data);
       setPagination({
-        page: response.data.page,
-        limit: response.data.limit,
-        total: response.data.total,
-        totalPages: response.data.totalPages
+        page: current_page,
+        limit: per_page,
+        total: total,
+        totalPages: last_page
       });
       setError(null);
     } catch (err) {
