@@ -152,28 +152,25 @@ const Domains = () => {
   const domainStats = [
     {
       title: 'Total Domains',
-      value: mockDomains.length,
+      value: stats.total,
       icon: Globe,
       color: 'text-blue-600'
     },
     {
       title: 'Active Domains',
-      value: mockDomains.filter(d => d.status === 'Active').length,
+      value: stats.active,
       icon: CheckCircle,
       color: 'text-green-600'
     },
     {
       title: 'Expiring Soon',
-      value: mockDomains.filter(d => {
-        const days = getDaysUntilExpiry(d.expiryDate);
-        return days <= 30 && days > 0;
-      }).length,
+      value: stats.expiringSoon,
       icon: AlertTriangle,
       color: 'text-yellow-600'
     },
     {
       title: 'Auto-Renew Enabled',
-      value: mockDomains.filter(d => d.autoRenew).length,
+      value: stats.autoRenew,
       icon: RefreshCw,
       color: 'text-purple-600'
     }
