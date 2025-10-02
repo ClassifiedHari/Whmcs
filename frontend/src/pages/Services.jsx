@@ -177,7 +177,7 @@ const Services = () => {
     },
     {
       title: 'Monthly Recurring',
-      value: `$${stats.monthlyRecurring.toLocaleString()}`,
+      value: `₹${stats.monthlyRecurring.toLocaleString('en-IN')}`,
       icon: DollarSign,
       color: 'text-purple-600'
     }
