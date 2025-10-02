@@ -19,29 +19,29 @@ class DashboardController extends Controller
         // Calculate sales statistics
         $today = now()->startOfDay();
         $startOfMonth = now()->startOfMonth();
-        $startOfYear = now()->startOfYear();
+        $last12Months = now()->subMonths(12);
         
         $sales_stats = [
             'today_sales' => Invoice::where('status', 'Paid')
-                ->whereDate('created_at', '>=', $today)
+                ->whereDate('issue_date', '>=', $today)
                 ->sum('amount'),
             'monthly_sales' => Invoice::where('status', 'Paid')
-                ->whereDate('created_at', '>=', $startOfMonth)
+                ->whereDate('issue_date', '>=', $startOfMonth)
                 ->sum('amount'),
-            'yearly_sales' => Invoice::where('status', 'Paid')
-                ->whereDate('created_at', '>=', $startOfYear)
+            'last_12_months_sales' => Invoice::where('status', 'Paid')
+                ->where('issue_date', '>=', $last12Months)
                 ->sum('amount'),
             'overall_sales' => Invoice::where('status', 'Paid')->sum('amount'),
             
             // Additional invoice counts
             'today_invoices_count' => Invoice::where('status', 'Paid')
-                ->whereDate('created_at', '>=', $today)
+                ->whereDate('issue_date', '>=', $today)
                 ->count(),
             'monthly_invoices_count' => Invoice::where('status', 'Paid')
-                ->whereDate('created_at', '>=', $startOfMonth)
+                ->whereDate('issue_date', '>=', $startOfMonth)
                 ->count(),
-            'yearly_invoices_count' => Invoice::where('status', 'Paid')
-                ->whereDate('created_at', '>=', $startOfYear)
+            'last_12_months_invoices_count' => Invoice::where('status', 'Paid')
+                ->where('issue_date', '>=', $last12Months)
                 ->count(),
             'overall_invoices_count' => Invoice::where('status', 'Paid')->count(),
         ];
