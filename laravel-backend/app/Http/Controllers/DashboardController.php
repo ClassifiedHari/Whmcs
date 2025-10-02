@@ -16,6 +16,36 @@ class DashboardController extends Controller
      */
     public function index(): JsonResponse
     {
+        // Calculate sales statistics
+        $today = now()->startOfDay();
+        $startOfMonth = now()->startOfMonth();
+        $startOfYear = now()->startOfYear();
+        
+        $sales_stats = [
+            'today_sales' => Invoice::where('status', 'Paid')
+                ->whereDate('created_at', '>=', $today)
+                ->sum('amount'),
+            'monthly_sales' => Invoice::where('status', 'Paid')
+                ->whereDate('created_at', '>=', $startOfMonth)
+                ->sum('amount'),
+            'yearly_sales' => Invoice::where('status', 'Paid')
+                ->whereDate('created_at', '>=', $startOfYear)
+                ->sum('amount'),
+            'overall_sales' => Invoice::where('status', 'Paid')->sum('amount'),
+            
+            // Additional invoice counts
+            'today_invoices_count' => Invoice::where('status', 'Paid')
+                ->whereDate('created_at', '>=', $today)
+                ->count(),
+            'monthly_invoices_count' => Invoice::where('status', 'Paid')
+                ->whereDate('created_at', '>=', $startOfMonth)
+                ->count(),
+            'yearly_invoices_count' => Invoice::where('status', 'Paid')
+                ->whereDate('created_at', '>=', $startOfYear)
+                ->count(),
+            'overall_invoices_count' => Invoice::where('status', 'Paid')->count(),
+        ];
+        
         $stats = [
             'total_clients' => Client::count(),
             'active_clients' => Client::where('status', 'Active')->count(),
@@ -37,6 +67,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'stats' => $stats,
+            'sales_stats' => $sales_stats,
             'recent_clients' => $recent_clients,
             'recent_invoices' => $recent_invoices,
             'recent_tickets' => $recent_tickets,
