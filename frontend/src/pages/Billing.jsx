@@ -350,7 +350,7 @@ const Billing = () => {
                       <TableCell className={`font-medium ${
                         transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount)}
+                        {transaction.amount > 0 ? '+' : ''}₹{Math.abs(transaction.amount).toLocaleString('en-IN')}
                       </TableCell>
                       <TableCell>
                         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
