@@ -75,7 +75,24 @@ const Clients = () => {
       // Laravel pagination format: { data, current_page, total, per_page, last_page }
       const { data, current_page, total, per_page, last_page } = response.data;
       
-      setClients(data);
+      // Transform Laravel snake_case to camelCase for frontend
+      const transformedClients = data.map(client => ({
+        id: client.id,
+        firstName: client.first_name,
+        lastName: client.last_name,
+        email: client.email,
+        company: client.company || 'N/A',
+        phone: client.phone || 'N/A',
+        address: client.address || 'N/A',
+        status: client.status,
+        activeServices: client.active_services || 0,
+        totalSpent: parseFloat(client.total_spent || 0),
+        lastLogin: client.last_login,
+        registrationDate: client.registration_date,
+        createdAt: client.created_at
+      }));
+      
+      setClients(transformedClients);
       setPagination({
         page: current_page,
         limit: per_page,
