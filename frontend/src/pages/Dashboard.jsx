@@ -327,7 +327,7 @@ const Dashboard = () => {
                 </div>
                 {activity.amount && (
                   <div className="text-right">
-                    <p className="text-sm font-medium text-green-600">+${activity.amount}</p>
+                    <p className="text-sm font-medium text-green-600">+₹{activity.amount.toLocaleString('en-IN')}</p>
                   </div>
                 )}
               </div>
