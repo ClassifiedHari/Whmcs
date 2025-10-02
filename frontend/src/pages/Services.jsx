@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
+import axios from 'axios';
 import {
   Table,
   TableBody,
@@ -32,17 +33,101 @@ import {
   DollarSign,
   Server,
   Globe,
-  Shield
+  Shield,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
-import { mockServices } from '../data/mockData';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const Services = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0
+  });
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    suspended: 0,
+    monthlyRecurring: 0
+  });
 
-  const filteredServices = mockServices.filter(service =>
-    service.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.domain.toLowerCase().includes(searchTerm.toLowerCase())
+  const fetchServices = async (page = 1) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/services`, {
+        params: { page }
+      });
+      
+      // Laravel pagination format
+      const { data, current_page, total, per_page, last_page } = response.data;
+      
+      // Transform Laravel snake_case to camelCase
+      const transformedServices = data.map(service => ({
+        id: service.id,
+        clientId: service.client_id,
+        productName: service.product_name || 'Service',
+        domain: service.domain || 'N/A',
+        status: service.status,
+        nextDueDate: service.next_due_date,
+        recurringAmount: parseFloat(service.recurring_amount || 0),
+        billingCycle: service.billing_cycle || 'Monthly',
+        registrationDate: service.registration_date,
+        client: service.client ? {
+          firstName: service.client.first_name,
+          lastName: service.client.last_name,
+          email: service.client.email
+        } : null
+      }));
+      
+      setServices(transformedServices);
+      setPagination({
+        page: current_page,
+        limit: per_page,
+        total: total,
+        totalPages: last_page
+      });
+      
+      // Calculate stats
+      const activeCount = transformedServices.filter(s => s.status === 'Active').length;
+      const suspendedCount = transformedServices.filter(s => s.status === 'Suspended').length;
+      const monthlySum = transformedServices
+        .filter(s => s.billingCycle === 'Monthly')
+        .reduce((sum, s) => sum + s.recurringAmount, 0);
+      
+      setStats({
+        total: total,
+        active: activeCount,
+        suspended: suspendedCount,
+        monthlyRecurring: monthlySum
+      });
+      
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching services:', err);
+      setError('Failed to load services');
+      setServices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const filteredServices = services.filter(service =>
+    (service.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.domain?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.client?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.client?.lastName?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getStatusBadge = (status) => {
