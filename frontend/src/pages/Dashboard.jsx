@@ -301,22 +301,22 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Yearly Sales */}
+            {/* Last 12 Months Sales */}
             <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-purple-500 rounded-lg">
                   <BarChart3 className="w-6 h-6 text-white" />
                 </div>
-                <Badge className="bg-purple-500 text-white">This Year</Badge>
+                <Badge className="bg-purple-500 text-white">Last 12 Months</Badge>
               </div>
               <h3 className="text-2xl font-bold text-gray-900">
-                ₹{dashboardStats.yearlySales.toLocaleString('en-IN')}
+                ₹{dashboardStats.last12MonthsSales.toLocaleString('en-IN')}
               </h3>
               <p className="text-sm text-gray-600 mt-1">
-                {dashboardStats.yearlyInvoicesCount} invoice{dashboardStats.yearlyInvoicesCount !== 1 ? 's' : ''}
+                {dashboardStats.last12MonthsInvoicesCount} invoice{dashboardStats.last12MonthsInvoicesCount !== 1 ? 's' : ''}
               </p>
               <div className="mt-3 pt-3 border-t border-purple-200">
-                <p className="text-xs text-gray-600">Current year sales</p>
+                <p className="text-xs text-gray-600">Rolling 12 months sales</p>
               </div>
             </div>
 
