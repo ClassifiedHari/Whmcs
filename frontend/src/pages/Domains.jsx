@@ -238,25 +238,57 @@ const Domains = () => {
       {/* Domains Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Domains ({filteredDomains.length})</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <span>All Domains ({pagination.total})</span>
+            {loading && <RefreshCw className="w-4 h-4 animate-spin" />}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Domain</TableHead>
-                <TableHead>Registrar</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Registration Date</TableHead>
-                <TableHead>Expiry Date</TableHead>
-                <TableHead>Auto-Renew</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredDomains.map((domain) => {
-                const daysUntilExpiry = getDaysUntilExpiry(domain.expiryDate);
-                return (
+          {error ? (
+            <div className="text-center py-8">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-red-600 mb-4">{error}</p>
+              <Button onClick={() => fetchDomains(pagination.page)}>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Retry
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Domain</TableHead>
+                  <TableHead>Registrar</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Registration Date</TableHead>
+                  <TableHead>Expiry Date</TableHead>
+                  <TableHead>Auto-Renew</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                    </TableRow>
+                  ))
+                ) : filteredDomains.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                      No domains found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredDomains.map((domain) => {
+                    const daysUntilExpiry = getDaysUntilExpiry(domain.expiryDate);
+                    return (
                   <TableRow key={domain.id} className="hover:bg-gray-50">
                     <TableCell>
                       <div className="flex items-center space-x-3">
