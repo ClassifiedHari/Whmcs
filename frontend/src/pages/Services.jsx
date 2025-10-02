@@ -380,9 +380,11 @@ const Services = () => {
                     </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+                )}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>
