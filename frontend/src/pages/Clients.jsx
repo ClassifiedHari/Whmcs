@@ -314,7 +314,7 @@ const Clients = () => {
                       </TableCell>
                       <TableCell>
                         <span className="text-sm font-medium text-green-600">
-                          ${client.totalSpent.toLocaleString()}
+                          ₹{client.totalSpent.toLocaleString('en-IN')}
                         </span>
                       </TableCell>
                       <TableCell className="text-sm text-gray-500">
