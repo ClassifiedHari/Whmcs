@@ -32,8 +32,8 @@ const Dashboard = () => {
       setLoading(true);
       const response = await axios.get(`${API}/dashboard`);
       
-      // Laravel returns { stats, recent_clients, recent_invoices, recent_tickets }
-      const { stats, recent_clients, recent_invoices, recent_tickets } = response.data;
+      // Laravel returns { stats, sales_stats, recent_clients, recent_invoices, recent_tickets }
+      const { stats, sales_stats, recent_clients, recent_invoices, recent_tickets } = response.data;
       
       // Transform Laravel response to match frontend expectations
       setDashboardStats({
@@ -43,7 +43,16 @@ const Dashboard = () => {
         openTickets: stats.pending_tickets || 0,
         pendingInvoices: stats.unpaid_invoices || 0,
         cancellationRequests: 0, // Not in current API
-        pendingOrders: 0 // Not in current API
+        pendingOrders: 0, // Not in current API
+        // Add sales statistics
+        todaySales: parseFloat(sales_stats?.today_sales || 0),
+        monthlySales: parseFloat(sales_stats?.monthly_sales || 0),
+        yearlySales: parseFloat(sales_stats?.yearly_sales || 0),
+        overallSales: parseFloat(sales_stats?.overall_sales || 0),
+        todayInvoicesCount: sales_stats?.today_invoices_count || 0,
+        monthlyInvoicesCount: sales_stats?.monthly_invoices_count || 0,
+        yearlyInvoicesCount: sales_stats?.yearly_invoices_count || 0,
+        overallInvoicesCount: sales_stats?.overall_invoices_count || 0,
       });
       
       // Transform recent activities from recent_clients and recent_invoices
