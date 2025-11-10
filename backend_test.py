@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-WHMCS Admin Backend API Test Suite
-Tests all backend endpoints with realistic data
+Laravel WHMCS Backend API Test Suite
+Tests all Laravel backend endpoints with realistic data
 """
 
 import requests
@@ -12,10 +12,10 @@ import sys
 import os
 
 # Get backend URL from environment
-BACKEND_URL = "https://client-manager-81.preview.emergentagent.com"
+BACKEND_URL = "https://ticket-manager-20.preview.emergentagent.com"
 API_BASE = f"{BACKEND_URL}/api"
 
-class WHMCSBackendTester:
+class LaravelBackendTester:
     def __init__(self):
         self.session = requests.Session()
         self.session.headers.update({
@@ -24,7 +24,10 @@ class WHMCSBackendTester:
         })
         self.test_results = []
         self.created_client_id = None
+        self.created_service_id = None
+        self.created_domain_id = None
         self.created_invoice_id = None
+        self.created_ticket_id = None
         
     def log_result(self, test_name, success, details, response_data=None):
         """Log test result"""
@@ -43,111 +46,67 @@ class WHMCSBackendTester:
         if response_data and not success:
             print(f"   Response: {json.dumps(response_data, indent=2)}")
     
-    def test_health_check(self):
-        """Test health check endpoint"""
+    def test_dashboard_endpoint(self):
+        """Test dashboard endpoint"""
         try:
-            response = self.session.get(f"{API_BASE}/health", timeout=10)
+            response = self.session.get(f"{API_BASE}/dashboard", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
-                if data.get('status') == 'healthy' and data.get('database') == 'connected':
-                    self.log_result("Health Check", True, "API is healthy and database connected", data)
-                    return True
-                else:
-                    self.log_result("Health Check", False, f"Unhealthy response: {data}", data)
-                    return False
-            else:
-                self.log_result("Health Check", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-                
-        except requests.exceptions.RequestException as e:
-            self.log_result("Health Check", False, f"Connection error: {str(e)}")
-            return False
-    
-    def test_root_endpoint(self):
-        """Test root API endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/", timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if "WHMCS Admin API" in data.get('message', ''):
-                    self.log_result("Root Endpoint", True, "Root endpoint working correctly", data)
-                    return True
-                else:
-                    self.log_result("Root Endpoint", False, f"Unexpected response: {data}", data)
-                    return False
-            else:
-                self.log_result("Root Endpoint", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-                
-        except requests.exceptions.RequestException as e:
-            self.log_result("Root Endpoint", False, f"Connection error: {str(e)}")
-            return False
-    
-    def test_dashboard_stats(self):
-        """Test dashboard stats endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/dashboard/stats", timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                # Check if response has expected structure
-                expected_keys = ['totalClients', 'totalInvoices', 'totalRevenue', 'activeServices']
+                expected_keys = ['stats', 'recent_clients', 'recent_invoices', 'recent_tickets']
                 if all(key in data for key in expected_keys):
-                    self.log_result("Dashboard Stats", True, "Dashboard stats retrieved successfully", data)
-                    return True
+                    stats = data['stats']
+                    stats_keys = ['total_clients', 'total_services', 'total_domains', 'total_invoices']
+                    if any(key in stats for key in stats_keys):
+                        self.log_result("Dashboard API", True, f"Dashboard data retrieved successfully", {
+                            'total_clients': stats.get('total_clients'),
+                            'total_services': stats.get('total_services'),
+                            'total_invoices': stats.get('total_invoices'),
+                            'recent_clients_count': len(data['recent_clients']),
+                            'recent_invoices_count': len(data['recent_invoices'])
+                        })
+                        return True
+                    else:
+                        self.log_result("Dashboard API", False, f"Missing expected stats keys", data)
+                        return False
                 else:
-                    self.log_result("Dashboard Stats", True, "Dashboard stats endpoint working (structure may vary)", data)
-                    return True
+                    self.log_result("Dashboard API", False, f"Missing expected response keys", data)
+                    return False
             else:
-                self.log_result("Dashboard Stats", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_result("Dashboard API", False, f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except requests.exceptions.RequestException as e:
-            self.log_result("Dashboard Stats", False, f"Connection error: {str(e)}")
+            self.log_result("Dashboard API", False, f"Connection error: {str(e)}")
             return False
     
-    def test_dashboard_activities(self):
-        """Test dashboard activities endpoint"""
+    def test_clients_list(self):
+        """Test clients list endpoint with pagination"""
         try:
-            response = self.session.get(f"{API_BASE}/dashboard/activities?limit=5", timeout=10)
+            response = self.session.get(f"{API_BASE}/clients", timeout=10)
             
             if response.status_code == 200:
                 data = response.json()
-                if isinstance(data, list):
-                    self.log_result("Dashboard Activities", True, f"Retrieved {len(data)} activities", data[:2])  # Show first 2
+                # Laravel pagination structure
+                expected_keys = ['data', 'current_page', 'total', 'per_page', 'last_page']
+                if all(key in data for key in expected_keys):
+                    self.log_result("Clients List", True, f"Retrieved {data['total']} clients (page {data['current_page']})", {
+                        'total': data['total'],
+                        'current_page': data['current_page'],
+                        'per_page': data['per_page'],
+                        'last_page': data['last_page'],
+                        'data_count': len(data['data'])
+                    })
                     return True
                 else:
-                    self.log_result("Dashboard Activities", False, f"Expected list, got: {type(data)}", data)
+                    self.log_result("Clients List", False, f"Missing expected pagination keys", data)
                     return False
             else:
-                self.log_result("Dashboard Activities", False, f"HTTP {response.status_code}: {response.text}")
+                self.log_result("Clients List", False, f"HTTP {response.status_code}: {response.text}")
                 return False
                 
         except requests.exceptions.RequestException as e:
-            self.log_result("Dashboard Activities", False, f"Connection error: {str(e)}")
-            return False
-    
-    def test_dashboard_tasks(self):
-        """Test dashboard tasks endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/dashboard/tasks", timeout=10)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, list):
-                    self.log_result("Dashboard Tasks", True, f"Retrieved {len(data)} tasks", data[:2])  # Show first 2
-                    return True
-                else:
-                    self.log_result("Dashboard Tasks", False, f"Expected list, got: {type(data)}", data)
-                    return False
-            else:
-                self.log_result("Dashboard Tasks", False, f"HTTP {response.status_code}: {response.text}")
-                return False
-                
-        except requests.exceptions.RequestException as e:
-            self.log_result("Dashboard Tasks", False, f"Connection error: {str(e)}")
+            self.log_result("Clients List", False, f"Connection error: {str(e)}")
             return False
     
     def test_clients_list(self):

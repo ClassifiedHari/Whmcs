@@ -4,38 +4,30 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class TicketReply extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $table = 'ticket_replies';
+    public $timestamps = false;
+
     protected $fillable = [
         'ticket_id',
+        'userid',
+        'admin',
         'message',
-        'sender',
-        'is_admin',
+        'date',
+        'attachment',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
-        'is_admin' => 'boolean',
+        'date' => 'datetime',
     ];
 
-    /**
-     * Get the ticket that owns the reply.
-     */
+    // Relationships
     public function ticket()
     {
-        return $this->belongsTo(Ticket::class);
+        return $this->belongsTo(Ticket::class, 'ticket_id');
     }
 }

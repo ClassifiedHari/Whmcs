@@ -13,7 +13,9 @@ import {
   CheckCircle,
   Clock,
   ArrowRight,
-  RefreshCw
+  RefreshCw,
+  BarChart3,
+  Award
 } from 'lucide-react';
 import axios from 'axios';
 
@@ -30,15 +32,57 @@ const Dashboard = () => {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const [statsResponse, activitiesResponse, tasksResponse] = await Promise.all([
-        axios.get(`${API}/dashboard/stats`),
-        axios.get(`${API}/dashboard/activities`),
-        axios.get(`${API}/dashboard/tasks`)
+      const response = await axios.get(`${API}/dashboard`);
+      
+      // Laravel returns { stats, sales_stats, recent_clients, recent_invoices, recent_tickets }
+      const { stats, sales_stats, recent_clients, recent_invoices, recent_tickets } = response.data;
+      
+      // Transform Laravel response to match frontend expectations
+      setDashboardStats({
+        totalClients: stats.total_clients || 0,
+        activeServices: stats.active_services || 0,
+        monthlyRevenue: parseFloat(stats.total_revenue || 0),
+        openTickets: stats.pending_tickets || 0,
+        pendingInvoices: stats.unpaid_invoices || 0,
+        cancellationRequests: 0, // Not in current API
+        pendingOrders: 0, // Not in current API
+        // Add sales statistics
+        todaySales: parseFloat(sales_stats?.today_sales || 0),
+        monthlySales: parseFloat(sales_stats?.monthly_sales || 0),
+        last12MonthsSales: parseFloat(sales_stats?.last_12_months_sales || 0),
+        overallSales: parseFloat(sales_stats?.overall_sales || 0),
+        todayInvoicesCount: sales_stats?.today_invoices_count || 0,
+        monthlyInvoicesCount: sales_stats?.monthly_invoices_count || 0,
+        last12MonthsInvoicesCount: sales_stats?.last_12_months_invoices_count || 0,
+        overallInvoicesCount: sales_stats?.overall_invoices_count || 0,
+      });
+      
+      // Transform recent activities from recent_clients and recent_invoices
+      const activities = [
+        ...(recent_clients || []).slice(0, 3).map((client, idx) => ({
+          id: `client-${client.id}`,
+          type: 'client',
+          description: `New client registered: ${client.first_name} ${client.last_name}`,
+          timestamp: new Date(client.created_at).toLocaleString(),
+        })),
+        ...(recent_invoices || []).slice(0, 3).map((invoice, idx) => ({
+          id: `invoice-${invoice.id}`,
+          type: 'payment',
+          description: `Invoice #${invoice.invoice_id} - ${invoice.status}`,
+          timestamp: new Date(invoice.created_at).toLocaleString(),
+          amount: parseFloat(invoice.amount)
+        }))
+      ];
+      
+      setRecentActivities(activities);
+      
+      // Mock admin tasks for now
+      setAdminTasks([
+        { id: 1, task: 'Review pending invoices', dueDate: 'Today', priority: 'High', completed: false },
+        { id: 2, task: 'Update server maintenance', dueDate: 'Tomorrow', priority: 'Medium', completed: false },
+        { id: 3, task: 'Client support follow-up', dueDate: 'This week', priority: 'Low', completed: true }
       ]);
-
-      setDashboardStats(statsResponse.data);
-      setRecentActivities(activitiesResponse.data);
-      setAdminTasks(tasksResponse.data);
+      
       setError(null);
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -97,7 +141,7 @@ const Dashboard = () => {
     },
     {
       title: 'Monthly Revenue',
-      value: `$${dashboardStats.monthlyRevenue.toLocaleString()}`,
+      value: `₹${dashboardStats.monthlyRevenue.toLocaleString('en-IN')}`,
       icon: DollarSign,
       color: 'bg-purple-500',
       change: '+15%',
@@ -209,6 +253,95 @@ const Dashboard = () => {
         ))}
       </div>
 
+      {/* Sales Statistics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <DollarSign className="w-5 h-5 mr-2 text-green-600" />
+            Sales Statistics
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Today's Sales */}
+            <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-blue-500 rounded-lg">
+                  <DollarSign className="w-6 h-6 text-white" />
+                </div>
+                <Badge className="bg-blue-500 text-white">Today</Badge>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                ₹{dashboardStats.todaySales.toLocaleString('en-IN')}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {dashboardStats.todayInvoicesCount} invoice{dashboardStats.todayInvoicesCount !== 1 ? 's' : ''}
+              </p>
+              <div className="mt-3 pt-3 border-t border-blue-200">
+                <p className="text-xs text-gray-600">Sales made today</p>
+              </div>
+            </div>
+
+            {/* Monthly Sales */}
+            <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-green-500 rounded-lg">
+                  <TrendingUp className="w-6 h-6 text-white" />
+                </div>
+                <Badge className="bg-green-500 text-white">This Month</Badge>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                ₹{dashboardStats.monthlySales.toLocaleString('en-IN')}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {dashboardStats.monthlyInvoicesCount} invoice{dashboardStats.monthlyInvoicesCount !== 1 ? 's' : ''}
+              </p>
+              <div className="mt-3 pt-3 border-t border-green-200">
+                <p className="text-xs text-gray-600">Current month sales</p>
+              </div>
+            </div>
+
+            {/* Last 12 Months Sales */}
+            <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-purple-500 rounded-lg">
+                  <BarChart3 className="w-6 h-6 text-white" />
+                </div>
+                <Badge className="bg-purple-500 text-white">Last 12 Months</Badge>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                ₹{dashboardStats.last12MonthsSales.toLocaleString('en-IN')}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {dashboardStats.last12MonthsInvoicesCount} invoice{dashboardStats.last12MonthsInvoicesCount !== 1 ? 's' : ''}
+              </p>
+              <div className="mt-3 pt-3 border-t border-purple-200">
+                <p className="text-xs text-gray-600">Rolling 12 months sales</p>
+              </div>
+            </div>
+
+            {/* Overall Sales */}
+            <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+              <div className="flex items-center justify-between mb-4">
+                <div className="p-3 bg-orange-500 rounded-lg">
+                  <Award className="w-6 h-6 text-white" />
+                </div>
+                <Badge className="bg-orange-500 text-white">All Time</Badge>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900">
+                ₹{dashboardStats.overallSales.toLocaleString('en-IN')}
+              </h3>
+              <p className="text-sm text-gray-600 mt-1">
+                {dashboardStats.overallInvoicesCount} invoice{dashboardStats.overallInvoicesCount !== 1 ? 's' : ''}
+              </p>
+              <div className="mt-3 pt-3 border-t border-orange-200">
+                <p className="text-xs text-gray-600">Total lifetime sales</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Alerts & Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
@@ -294,7 +427,7 @@ const Dashboard = () => {
                 </div>
                 {activity.amount && (
                   <div className="text-right">
-                    <p className="text-sm font-medium text-green-600">+${activity.amount}</p>
+                    <p className="text-sm font-medium text-green-600">+₹{activity.amount.toLocaleString('en-IN')}</p>
                   </div>
                 )}
               </div>

@@ -76,7 +76,7 @@ const Billing = () => {
   const billingStats = [
     {
       title: 'Monthly Revenue',
-      value: `$${dashboardStats.monthlyRevenue.toLocaleString()}`,
+      value: `₹${dashboardStats.monthlyRevenue.toLocaleString('en-IN')}`,
       icon: DollarSign,
       color: 'text-green-600',
       change: '+15%'
@@ -90,7 +90,7 @@ const Billing = () => {
     },
     {
       title: 'Overdue Amount',
-      value: '$3,247.50',
+      value: '₹3,247.50',
       icon: AlertCircle,
       color: 'text-red-600',
       change: '-12%'
@@ -232,7 +232,7 @@ const Billing = () => {
                       <TableCell className="font-medium">{invoice.id}</TableCell>
                       <TableCell>{invoice.clientName}</TableCell>
                       <TableCell className="max-w-xs truncate">{invoice.description}</TableCell>
-                      <TableCell className="font-medium">${invoice.amount}</TableCell>
+                      <TableCell className="font-medium">₹{invoice.amount.toLocaleString('en-IN')}</TableCell>
                       <TableCell>{getStatusBadge(invoice.status)}</TableCell>
                       <TableCell>{invoice.dueDate}</TableCell>
                       <TableCell className="text-right">
@@ -289,7 +289,7 @@ const Billing = () => {
                       <TableCell>{payment.invoiceId}</TableCell>
                       <TableCell>{payment.clientName}</TableCell>
                       <TableCell className="font-medium text-green-600">
-                        ${payment.amount}
+                        ₹{payment.amount.toLocaleString('en-IN')}
                       </TableCell>
                       <TableCell>{payment.method}</TableCell>
                       <TableCell>
@@ -350,7 +350,7 @@ const Billing = () => {
                       <TableCell className={`font-medium ${
                         transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
                       }`}>
-                        {transaction.amount > 0 ? '+' : ''}${Math.abs(transaction.amount)}
+                        {transaction.amount > 0 ? '+' : ''}₹{Math.abs(transaction.amount).toLocaleString('en-IN')}
                       </TableCell>
                       <TableCell>
                         <Badge className="bg-green-100 text-green-700 hover:bg-green-100">

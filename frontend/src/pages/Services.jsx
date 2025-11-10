@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
+import axios from 'axios';
 import {
   Table,
   TableBody,
@@ -32,17 +33,101 @@ import {
   DollarSign,
   Server,
   Globe,
-  Shield
+  Shield,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react';
-import { mockServices } from '../data/mockData';
+
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+const API = `${BACKEND_URL}/api`;
 
 const Services = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0
+  });
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    suspended: 0,
+    monthlyRecurring: 0
+  });
 
-  const filteredServices = mockServices.filter(service =>
-    service.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    service.domain.toLowerCase().includes(searchTerm.toLowerCase())
+  const fetchServices = async (page = 1) => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API}/services`, {
+        params: { page }
+      });
+      
+      // Laravel pagination format
+      const { data, current_page, total, per_page, last_page } = response.data;
+      
+      // Transform Laravel snake_case to camelCase
+      const transformedServices = data.map(service => ({
+        id: service.id,
+        clientId: service.client_id,
+        productName: service.product_name || 'Service',
+        domain: service.domain || 'N/A',
+        status: service.status,
+        nextDueDate: service.next_due_date,
+        recurringAmount: parseFloat(service.recurring_amount || 0),
+        billingCycle: service.billing_cycle || 'Monthly',
+        registrationDate: service.registration_date,
+        client: service.client ? {
+          firstName: service.client.first_name,
+          lastName: service.client.last_name,
+          email: service.client.email
+        } : null
+      }));
+      
+      setServices(transformedServices);
+      setPagination({
+        page: current_page,
+        limit: per_page,
+        total: total,
+        totalPages: last_page
+      });
+      
+      // Calculate stats
+      const activeCount = transformedServices.filter(s => s.status === 'Active').length;
+      const suspendedCount = transformedServices.filter(s => s.status === 'Suspended').length;
+      const monthlySum = transformedServices
+        .filter(s => s.billingCycle === 'Monthly')
+        .reduce((sum, s) => sum + s.recurringAmount, 0);
+      
+      setStats({
+        total: total,
+        active: activeCount,
+        suspended: suspendedCount,
+        monthlyRecurring: monthlySum
+      });
+      
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching services:', err);
+      setError('Failed to load services');
+      setServices([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const filteredServices = services.filter(service =>
+    (service.productName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.domain?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.client?.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    service.client?.lastName?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getStatusBadge = (status) => {
@@ -74,25 +159,25 @@ const Services = () => {
   const serviceStats = [
     {
       title: 'Total Services',
-      value: mockServices.length,
+      value: stats.total,
       icon: Package,
       color: 'text-blue-600'
     },
     {
       title: 'Active Services',
-      value: mockServices.filter(s => s.status === 'Active').length,
+      value: stats.active,
       icon: Server,
       color: 'text-green-600'
     },
     {
       title: 'Suspended',
-      value: mockServices.filter(s => s.status === 'Suspended').length,
+      value: stats.suspended,
       icon: Power,
       color: 'text-red-600'
     },
     {
       title: 'Monthly Recurring',
-      value: `$${mockServices.reduce((sum, s) => s.billingCycle === 'Monthly' ? sum + s.recurringAmount : sum, 0).toLocaleString()}`,
+      value: `₹${stats.monthlyRecurring.toLocaleString('en-IN')}`,
       icon: DollarSign,
       color: 'text-purple-600'
     }
@@ -160,23 +245,55 @@ const Services = () => {
       {/* Services Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Services ({filteredServices.length})</CardTitle>
+          <CardTitle className="flex items-center justify-between">
+            <span>All Services ({pagination.total})</span>
+            {loading && <RefreshCw className="w-4 h-4 animate-spin" />}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Service</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Domain</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Billing</TableHead>
-                <TableHead>Next Due</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredServices.map((service) => (
+          {error ? (
+            <div className="text-center py-8">
+              <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+              <p className="text-red-600 mb-4">{error}</p>
+              <Button onClick={() => fetchServices(pagination.page)}>
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Retry
+              </Button>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Service</TableHead>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Domain</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Billing</TableHead>
+                  <TableHead>Next Due</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                      <TableCell><div className="h-4 bg-gray-200 rounded animate-pulse"></div></TableCell>
+                    </TableRow>
+                  ))
+                ) : filteredServices.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                      No services found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredServices.map((service) => (
                 <TableRow key={service.id} className="hover:bg-gray-50">
                   <TableCell>
                     <div className="flex items-center space-x-3">
@@ -190,7 +307,9 @@ const Services = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium text-gray-900">{service.clientName}</div>
+                    <div className="font-medium text-gray-900">
+                      {service.client ? `${service.client.firstName} ${service.client.lastName}` : 'N/A'}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center space-x-2">
@@ -203,7 +322,7 @@ const Services = () => {
                   </TableCell>
                   <TableCell>
                     <div>
-                      <div className="font-medium">${service.recurringAmount}</div>
+                      <div className="font-medium">₹{service.recurringAmount.toLocaleString('en-IN')}</div>
                       <div className="text-sm text-gray-500">{service.billingCycle}</div>
                     </div>
                   </TableCell>
@@ -261,9 +380,11 @@ const Services = () => {
                     </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+                )}
             </TableBody>
           </Table>
+          )}
         </CardContent>
       </Card>
     </div>

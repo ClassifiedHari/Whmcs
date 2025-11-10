@@ -68,17 +68,36 @@ const Clients = () => {
       const response = await axios.get(`${API}/clients`, {
         params: {
           page,
-          limit: pagination.limit,
           search: search || undefined
         }
       });
       
-      setClients(response.data.clients);
+      // Laravel pagination format: { data, current_page, total, per_page, last_page }
+      const { data, current_page, total, per_page, last_page } = response.data;
+      
+      // Transform Laravel snake_case to camelCase for frontend
+      const transformedClients = data.map(client => ({
+        id: client.id,
+        firstName: client.first_name,
+        lastName: client.last_name,
+        email: client.email,
+        company: client.company || 'N/A',
+        phone: client.phone || 'N/A',
+        address: client.address || 'N/A',
+        status: client.status,
+        activeServices: client.active_services || 0,
+        totalSpent: parseFloat(client.total_spent || 0),
+        lastLogin: client.last_login,
+        registrationDate: client.registration_date,
+        createdAt: client.created_at
+      }));
+      
+      setClients(transformedClients);
       setPagination({
-        page: response.data.page,
-        limit: response.data.limit,
-        total: response.data.total,
-        totalPages: response.data.totalPages
+        page: current_page,
+        limit: per_page,
+        total: total,
+        totalPages: last_page
       });
       setError(null);
     } catch (err) {
@@ -295,7 +314,7 @@ const Clients = () => {
                       </TableCell>
                       <TableCell>
                         <span className="text-sm font-medium text-green-600">
-                          ${client.totalSpent.toLocaleString()}
+                          ₹{client.totalSpent.toLocaleString('en-IN')}
                         </span>
                       </TableCell>
                       <TableCell className="text-sm text-gray-500">
@@ -392,7 +411,7 @@ const Clients = () => {
                     <div className="flex items-center justify-between">
                       <span>Total Spent:</span>
                       <span className="font-medium text-green-600">
-                        ${selectedClient.totalSpent.toLocaleString()}
+                        ₹{selectedClient.totalSpent.toLocaleString('en-IN')}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
